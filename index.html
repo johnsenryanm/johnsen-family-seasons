@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6e7ee">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Season Scheduler">
+<title>Season Scheduler</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #f6e7ee;
+    --blush-deep: #edd4df;
+    --paper: #fffdfa;
+    --ink: #4a3040;
+    --muted: #8a6b7a;
+    --line: #edd8e2;
+    --rose: #c46a8a;
+    --rose-deep: #a84e72;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background:
+      radial-gradient(1200px 500px at 50% -80px, #fff7fb 0%, var(--blush) 55%, #f3e4dc 100%);
+    color: var(--ink);
+  }
+  body {
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    padding: calc(22px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom));
+    max-width: 430px;
+    margin: 0 auto;
+  }
+  header { text-align: center; margin-bottom: 8px; }
+  .eyebrow {
+    letter-spacing: 0.34em;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--rose);
+  }
+  h1 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-weight: 600;
+    font-size: 40px;
+    line-height: 1.05;
+    margin: 10px 0 8px;
+    color: #5a3346;
+  }
+  .sub {
+    margin: 0;
+    font-size: 15px;
+    font-style: italic;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    color: var(--muted);
+  }
+  .seasons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 22px 0 12px;
+  }
+  .season {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 92px;
+    border: 1.5px solid transparent;
+    border-radius: 22px;
+    padding: 12px 8px 10px;
+    font-family: "Source Sans 3", sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #5a3346;
+    box-shadow: 0 8px 18px rgba(120, 70, 90, 0.08);
+  }
+  .season .ico { width: 34px; height: 34px; display: grid; place-items: center; }
+  .season svg { width: 30px; height: 30px; overflow: visible; }
+  .season[data-s="spring"] { background: linear-gradient(180deg, #f7ffe8 0%, #dcefc4 100%); color: #3f6b3a; }
+  .season[data-s="summer"] { background: linear-gradient(180deg, #fff4cf 0%, #ffd27a 100%); color: #8a4b12; }
+  .season[data-s="fall"] { background: linear-gradient(180deg, #ffe3d2 0%, #f0a070 100%); color: #8a3a22; }
+  .season[data-s="winter"] { background: linear-gradient(180deg, #f3f0ff 0%, #c9d8f6 100%); color: #3d4f86; }
+  .season[aria-pressed="true"] {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(120, 70, 90, 0.16);
+    outline: 2px solid rgba(196, 106, 138, 0.35);
+    outline-offset: 2px;
+  }
+  .sprout { transform-origin: 50% 90%; animation: sway 2.4s ease-in-out infinite; }
+  .petal { transform-origin: 50% 80%; animation: bob 2.1s ease-in-out infinite; }
+  .sun-core { transform-origin: 50% 50%; animation: pulse 2.2s ease-in-out infinite; }
+  .rays { transform-origin: 16px 16px; animation: spin 10s linear infinite; }
+  .leaf { transform-origin: 6px 4px; animation: drift 2.6s ease-in-out infinite; }
+  .flake { transform-origin: 16px 16px; animation: spin 9s linear infinite; }
+  @keyframes sway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) translateY(-2px); } }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px) scale(1.06); } }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes drift { 0%,100% { transform: rotate(-18deg); } 50% { transform: rotate(16deg) translateY(3px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .sprout,.petal,.sun-core,.rays,.leaf,.flake { animation: none; }
+  }
+  .date-line { text-align: center; font-size: 13px; font-weight: 500; color: var(--muted); margin: 4px 0 18px; }
+  .card {
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 18px 16px 16px;
+    border: 1px solid #f0dde6;
+    box-shadow: 0 16px 40px rgba(154, 90, 114, 0.1);
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin: 10px 0 6px;
+  }
+  input, textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    border-radius: 14px;
+    padding: 12px 14px;
+    font: 16px/1.4 "Source Sans 3", sans-serif;
+  }
+  textarea { min-height: 108px; resize: vertical; }
+  .row { display: flex; gap: 8px; margin-top: 14px; }
+  button.primary {
+    flex: 1;
+    border: 0;
+    border-radius: 999px;
+    padding: 13px 10px;
+    font: 700 13px/1 "Source Sans 3", sans-serif;
+    background: linear-gradient(180deg, #d57a9a 0%, var(--rose-deep) 100%);
+    color: #fff;
+    box-shadow: 0 8px 16px rgba(168, 78, 114, 0.28);
+  }
+  button:disabled { opacity: .38; box-shadow: none; }
+  .status { font-size: 13px; color: #6a8a5a; min-height: 18px; margin-top: 10px; }
+  h2 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 26px; font-weight: 600; margin: 26px 0 10px; color: #5a3346; }
+  .item { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 13px 14px 11px; margin: 0 0 10px; }
+  .item.done { opacity: .55; }
+  .item h3 { margin: 0 0 6px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-weight: 600; }
+  .item p { margin: 0; white-space: pre-wrap; font-size: 15px; line-height: 1.45; }
+  .item .meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .item button { border: 0; background: none; color: var(--rose-deep); font: 700 12px "Source Sans 3", sans-serif; padding: 0; }
+  .empty { color: var(--muted); font-style: italic; }
+  footer { margin-top: 26px; text-align: center; color: #b0899a; font-size: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Johnsen Family</div>
+    <h1>Season Scheduler</h1>
+    <p class="sub">Projects for the four turns of the year</p>
+  </header>
+  <div class="seasons" role="tablist">
+    <button class="season" data-s="spring" aria-pressed="false">
+      <span class="ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><g class="sprout"><path d="M16 28 V14" stroke="#4f8a4a" stroke-width="2" stroke-linecap="round"/><path class="petal" d="M16 16 C10 16 8 10 11 7 C13 11 16 12 16 16Z" fill="#f4a7c2"/><path class="petal" d="M16 16 C22 16 24 10 21 7 C19 11 16 12 16 16Z" fill="#e57aa0"/><circle cx="16" cy="15" r="2.2" fill="#f3d36b"/></g></svg></span>
+      Spring
+    </button>
+    <button class="season" data-s="summer" aria-pressed="false">
+      <span class="ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><g class="rays"><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.5 6.5l2.8 2.8M22.7 22.7l2.8 2.8M6.5 25.5l2.8-2.8M22.7 9.3l2.8-2.8" stroke="#e39b20" stroke-width="2" stroke-linecap="round"/></g><circle class="sun-core" cx="16" cy="16" r="6.2" fill="#ffb703"/></svg></span>
+      Summer
+    </button>
+    <button class="season" data-s="fall" aria-pressed="false">
+      <span class="ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><g class="leaf"><path d="M8 6 C20 4 28 14 24 24 C14 26 5 16 8 6Z" fill="#e07040"/><path d="M10 8 C18 10 22 16 23 22" stroke="#fff3ea" stroke-width="1.4" fill="none"/><path d="M23 22 L27 27" stroke="#b44a28" stroke-width="1.6" stroke-linecap="round"/></g></svg></span>
+      Fall
+    </button>
+    <button class="season" data-s="winter" aria-pressed="false">
+      <span class="ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><g class="flake"><path d="M16 4v24M4 16h24M7.5 7.5l17 17M24.5 7.5l-17 17" stroke="#6b86c9" stroke-width="2" stroke-linecap="round"/></g></svg></span>
+      Winter
+    </button>
+  </div>
+  <p class="date-line" id="dateLine">Choose a season</p>
+  <section class="card">
+    <label for="title">Project title</label>
+    <input id="title" maxlength="120" autocomplete="off" placeholder="Short name">
+    <label for="note">What should be remembered</label>
+    <textarea id="note" placeholder="Write the details. They are kept as written."></textarea>
+    <div class="row">
+      <button class="primary" id="addBtn" disabled>Add to season</button>
+    </div>
+    <div class="status" id="status"></div>
+  </section>
+  <h2 id="listHeading">On the list</h2>
+  <div id="list"><p class="empty">Pick a season to see what is already planned.</p></div>
+  <footer>Safari or Chrome → Share → Add to Home Screen.</footer>
+<script>
+const DATES = {
+  spring: { when: "Mar 20, 2027", mark: "equinox" },
+  summer: { when: "Jun 21, 2027", mark: "solstice" },
+  fall:   { when: "Sep 23, 2027", mark: "equinox" },
+  winter: { when: "Dec 21, 2026", mark: "solstice" }
+};
+const KEY = "quarter-days-v1";
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {spring:[],summer:[],fall:[],winter:[]}; }
+  catch { return {spring:[],summer:[],fall:[],winter:[]}; }
+}
+function save(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
+let current = null;
+const data = load();
+function uid() { return "p-" + Math.random().toString(16).slice(2, 10); }
+function setSeason(s) {
+  current = s;
+  document.querySelectorAll(".season").forEach(btn => {
+    btn.setAttribute("aria-pressed", btn.dataset.s === s ? "true" : "false");
+  });
+  const d = DATES[s];
+  document.getElementById("dateLine").textContent = s[0].toUpperCase() + s.slice(1) + "  ·  " + d.when + "  ·  " + d.mark;
+  document.getElementById("listHeading").textContent = s[0].toUpperCase() + s.slice(1) + " list";
+  document.getElementById("addBtn").disabled = false;
+  render();
+}
+function render() {
+  const box = document.getElementById("list");
+  if (!current) return;
+  const items = data[current] || [];
+  if (!items.length) { box.innerHTML = '<p class="empty">Nothing on this season yet.</p>'; return; }
+  box.innerHTML = items.map((it, i) => `<article class="item ${it.done ? "done" : ""}"><h3></h3><p></p><div class="meta"><span>${it.added || ""}</span><span><button data-act="done" data-i="${i}">${it.done ? "Reopen" : "Mark done"}</button> · <button data-act="del" data-i="${i}">Remove</button></span></div></article>`).join("");
+  [...box.querySelectorAll(".item")].forEach((el, i) => {
+    el.querySelector("h3").textContent = items[i].title;
+    el.querySelector("p").textContent = items[i].note || "";
+  });
+}
+document.querySelector(".seasons").addEventListener("click", e => {
+  const btn = e.target.closest(".season");
+  if (btn) setSeason(btn.dataset.s);
+});
+document.getElementById("list").addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn || !current) return;
+  const i = +btn.dataset.i;
+  if (btn.dataset.act === "done") data[current][i].done = !data[current][i].done;
+  if (btn.dataset.act === "del") data[current].splice(i, 1);
+  save(data);
+  render();
+});
+document.getElementById("addBtn").addEventListener("click", () => {
+  if (!current) return;
+  const title = document.getElementById("title").value.trim();
+  const note = document.getElementById("note").value.replace(/^\s+|\s+$/g, "");
+  if (!title) { document.getElementById("status").textContent = "A title is required."; return; }
+  const dup = (data[current] || []).some(p => p.title === title && p.note === note);
+  if (dup) { document.getElementById("status").textContent = "Already on this season."; return; }
+  data[current].push({ id: uid(), title, note, added: new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" }), done: false });
+  save(data);
+  document.getElementById("title").value = "";
+  document.getElementById("note").value = "";
+  document.getElementById("status").textContent = "Added to " + current + ".";
+  render();
+});
+(function pickDefault() {
+  const order = [["winter","2026-12-21"],["spring","2027-03-20"],["summer","2027-06-21"],["fall","2027-09-23"]];
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  setSeason((order.find(([, d]) => d >= today) || order[0])[0]);
+})();
+</script>
+</body>
+</html>
