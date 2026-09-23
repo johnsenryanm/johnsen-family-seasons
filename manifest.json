@@ -1,0 +1,8 @@
+{
+  "name": "Season Scheduler",
+  "short_name": "Seasons",
+  "display": "standalone",
+  "start_url": "./",
+  "background_color": "#f6e7ee",
+  "theme_color": "#f6e7ee"
+}
